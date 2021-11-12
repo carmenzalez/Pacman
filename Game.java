@@ -1,4 +1,4 @@
-package PacMan;
+package pacman;
 
 import javax.swing.JFrame;
 import java.awt.EventQueue;
@@ -10,7 +10,7 @@ public class Game extends JFrame {
     }
 
     public void init() {
-        setSize(470, 600);
+        setSize(435, 635);
         add(new Board());
     }
 
