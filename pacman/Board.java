@@ -8,6 +8,7 @@ import java.awt.Stroke;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
 
 /*
 Tamaño Bloque = cell
@@ -21,11 +22,14 @@ public class Board extends JPanel {
     private int cell = 15;
 
     //Images
-    private ImageIcon coco;
+    private ImageIcon cocoX;
     private ImageIcon cocoL1, cocoL2;
     private ImageIcon cocoR1, cocoR2;
     private ImageIcon cocoU1, cocoU2;
     private ImageIcon cocoD1, cocoD2;
+
+    //Coco
+    JLabel coco;
 
     //Game board (Empty=0, Wall=1, Teleport=2, Special=3)
     private int board[][] = {{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -42,7 +46,7 @@ public class Board extends JPanel {
                      {0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0},
                      {0,0,0,0,0,1,0,1,1,0,1,1,1,3,3,1,1,1,0,1,1,0,1,0,0,0,0,0},
                      {1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1},
-                     {2,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,2},
+                     {0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0},
                      {1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1},
                      {0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0},
                      {0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0},
@@ -63,19 +67,34 @@ public class Board extends JPanel {
     public Board() {
         setSize(450,615);
         setBackground(Color.BLACK);
+        loadImages();
+
+        /**
+         * Prova afegir coco
+         * Veure com queda
+         **/
+        coco = new JLabel(cocoX);
+        add(coco);
+        setLayout(null);
+        coco.setBounds(9*cell,15*cell,15,15);
     }
 
     private void loadImages() {
-
-        coco = new ImageIcon(getClass().getResource("../images/coco.gif")).getImage();
-        cocoL1 = new ImageIcon(getClass().getResource("../images/cocol1.gif")).getImage();
-        cocoL2 = new ImageIcon(getClass().getResource("../images/cocol2.gif")).getImage();
-        cocoR1 = new ImageIcon(getClass().getResource("../images/cocor1.gif")).getImage();
-        cocoR2 = new ImageIcon(getClass().getResource("../images/cocor2.gif")).getImage();
-        cocoU1 = new ImageIcon(getClass().getResource("../images/cocou1.gif")).getImage();
-        cocoU2 = new ImageIcon(getClass().getResource("../images/cocou2.gif")).getImage();
-        cocoD1 = new ImageIcon(getClass().getResource("../images/cocod1.gif")).getImage();
-        cocoD2 = new ImageIcon(getClass().getResource("../images/cocod2.gif")).getImage();
+        //try {
+            cocoX = new ImageIcon(getClass().getResource("../images/coco.png"));
+            /*cocoX = new ImageIcon(ImageIO.read(new File("../images/coco.png")));
+            cocoL1 = new ImageIcon(ImageIO.read(new File("../images/cocol1.png")));
+            cocoL2 = new ImageIcon(ImageIO.read(new File("../images/cocol2.png")));
+            cocoR1 = new ImageIcon(ImageIO.read(new File("../images/cocor1.png")));
+            cocoR2 = new ImageIcon(ImageIO.read(new File("../images/cocor2.png")));
+            cocoU1 = new ImageIcon(ImageIO.read(new File("../images/cocou1.png")));
+            cocoU2 = new ImageIcon(ImageIO.read(new File("../images/cocou2.png")));
+            cocoD1 = new ImageIcon(ImageIO.read(new File("../images/cocod1.png")));
+            cocoD2 = new ImageIcon(ImageIO.read(new File("../images/cocod2.png")));*/
+        /*} catch (IOException ex) {
+            System.out.println("One or more images have failed to load, please try again");
+        }*/
+    }
 
 
     public void drawMaze(Graphics g) {
@@ -122,6 +141,7 @@ public class Board extends JPanel {
         }
         g2d.setColor(Color.PINK);
         g2d.drawLine(13*cell+8,12*cell+8,14*cell+8,12*cell+8);
+        g2d.drawLine(13*cell+8,14*cell+8,13*cell+8,14*cell+8);
     }
 
     public void addFruit() {
