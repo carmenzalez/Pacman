@@ -178,23 +178,18 @@ public class Board extends JPanel implements ActionListener {
             int key = e.getKeyCode();
 
             if (key == KeyEvent.VK_LEFT) {
-                new Thread() {
-                    public void run() {
-                        while(!stop) {
-                            move(1);
-                            if (anim) {
-                                setImage(cocoL1);
-                            } else {
-                                setImage(cocoL2);
-                            }
-                            if (count > 3) {
-                                anim = !anim;
-                                count = 0;
-                            }
-                            count++;
-                        }
-                    }
-                }.start();
+                stop = true;
+                move(1);
+                if (anim) {
+                    setImage(cocoR1);
+                } else {
+                    setImage(cocoR2);
+                }
+                if (count > 3) {
+                    anim = !anim;
+                    count = 0;
+                }
+                count++;
             }
 
             if (key == KeyEvent.VK_RIGHT) {
