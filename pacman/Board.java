@@ -240,7 +240,7 @@ public class Board extends JPanel implements ActionListener {
         public void keyReleased(KeyEvent e) {
             
 
-                    move(1);
+                    /*move(1);
                     if (anim) {
                         setImage(cocoL1);
                     } else {
@@ -251,7 +251,7 @@ public class Board extends JPanel implements ActionListener {
                         count = 0;
                     }
                     count++;
-        }
+        }*/
     }
 
     public void actionPerformed(ActionEvent e) {
