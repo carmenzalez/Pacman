@@ -16,12 +16,25 @@ import java.awt.event.KeyEvent;
 import java.awt.Stroke;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.Timer;
+
+import java.lang.Math;
+
+// MIRAR BOX LAYOUT PARA REDIMENSIONADO
 
 public class Board extends JPanel implements ActionListener {
 
     // Tamany de la cel·la
     private int cell;
+
+    // Tecla premuda
+    private int key;
+
+    // Indicar posar una imatge o una altra de l'animació (boca oberta o mig oberta)
+    int anim = 0;
 
     // Imatges
     private Image cocoImg;
@@ -33,6 +46,19 @@ public class Board extends JPanel implements ActionListener {
 
     // Coco
     Coco coco;
+
+    // Text
+    JLabel ready;
+
+    // Timer per a animar i moure el coco
+    Timer timer = new Timer(20, this);
+
+    // Timer per al marcador
+    Timer score = new Timer(1000, new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            
+        }
+    });
 
     // Game board (Empty=0, Wall=1, Teleport=2, Special=3)
     private int board[][] = {{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -58,19 +84,36 @@ public class Board extends JPanel implements ActionListener {
                      {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
                      {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};;
 
-    /**
-     * Inicialització de paràmetres i variables
-     */
     public Board() {
-        setSize(608, 1024);
+        config();
+        initVar();
+        addKeyListener(new Key());
+        execute();
+    }
+
+    /**
+     * Configurem el Board (JPanel)
+     */
+    public void config() {
+        setSize(608, 704);
         setBackground(Color.BLACK);
         setFocusable(true);
-        addKeyListener(new Key());
+        setLocationRelativeTo(this);
+        timer.setRepeats(true);
+        score.start();
+    }
+
+    private void setLocationRelativeTo(Board board2) {
+    }
+
+    /**
+     * Definim les variables necessaries
+     */
+    public void initVar() {
         cell = 32;
         coco = new Coco();
         loadImages();
         setImage(cocoP0);
-        //drawImage(cocoImg, coco.getX() * cell + 3, coco.getY() * cell + 3, this);
     }
 
     /**
@@ -142,19 +185,42 @@ public class Board extends JPanel implements ActionListener {
      */
     public void move(int dir) {
         switch (dir) {
-        case 1:
-            coco.setX(coco.getX() - 3);
-            break;
-        case 2:
-            coco.setX(coco.getX() + 3);
-            break;
-        case 3:
-            coco.setY(coco.getY() - 3);
-            break;
-        case 4:
-            coco.setY(coco.getY() + 3);
-            break;
+            case 1:
+                //nextProbPos = ((coco.getX() - 12)/cell)%19;
+                if (board[(coco.getY()/cell)%22][((coco.getX() - 3)/cell)%19] != 0) {
+                    timer.stop();
+                } else {
+                    coco.setX(coco.getX() - 3);
+                }
+                break;
+            case 2:
+                if (board[(coco.getY()/cell)%22][((coco.getX() + 3 + 26)/cell)%19] != 0) {
+                    timer.stop();
+                } else {
+                    coco.setX(coco.getX() + 3);
+                }
+                break;
+            case 3:
+                if (board[((coco.getY() - 3)/cell)%22][(coco.getX()/cell)%19] != 0) {
+                    timer.stop();
+                } else {
+                    coco.setY(coco.getY() - 3);
+                }
+                break;
+            case 4:
+                if (board[((coco.getY() + 3 + 26)/cell)%22][(coco.getX()/cell)%19] != 0) {
+                    timer.stop();
+                } else {
+                    coco.setY(coco.getY() + 3);
+                }
+                break;
         }
+    }
+
+    public void execute() {
+        ready = new JLabel("READY!");
+        ready.setLocation(SwingConstants.CENTER, 12*cell);
+        add(ready);
     }
 
     public void addFruit() {
@@ -163,98 +229,64 @@ public class Board extends JPanel implements ActionListener {
 
     public class Key extends KeyAdapter {
 
-        // Saber quan parar
-        boolean stop = false;
-
-        // Indicar posar una imatge o una altra de l'animació (boca oberta o mig oberta)
-        boolean anim = true;
-
-        // Comptador que indica el canvi d'imatge d'animació
-        int count = 0;
-
         @Override
         public void keyPressed(KeyEvent e) {
 
-            int key = e.getKeyCode();
+            key = e.getKeyCode();
 
-            if (key == KeyEvent.VK_LEFT) {
-                stop = true;
-                move(1);
-                if (anim) {
-                    setImage(cocoR1);
-                } else {
-                    setImage(cocoR2);
-                }
-                if (count > 3) {
-                    anim = !anim;
-                    count = 0;
-                }
-                count++;
-            }
-
-            if (key == KeyEvent.VK_RIGHT) {
-                stop = true;
-                move(2);
-                if (anim) {
-                    setImage(cocoR1);
-                } else {
-                    setImage(cocoR2);
-                }
-                if (count > 3) {
-                    anim = !anim;
-                    count = 0;
-                }
-                count++;
-            }
-
-            if (key == KeyEvent.VK_UP) {
-                move(3);
-                if (anim) {
-                    setImage(cocoU1);
-                } else {
-                    setImage(cocoU2);
-                }
-                if (count > 3) {
-                    anim = !anim;
-                    count = 0;
-                }
-                count++;
-            }
-
-            if (key == KeyEvent.VK_DOWN) {
-                move(4);
-                if (anim) {
-                    setImage(cocoD1);
-                } else {
-                    setImage(cocoD2);
-                }
-                if (count > 3) {
-                    anim = !anim;
-                    count = 0;
-                }
-                count++;
+            if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_RIGHT ||
+            key == KeyEvent.VK_UP || key == KeyEvent.VK_DOWN) {
+                timer.restart();
+            } else {
+                timer.stop();
             }
         }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            
-
-                    /*move(1);
-                    if (anim) {
-                        setImage(cocoL1);
-                    } else {
-                        setImage(cocoL2);
-                    }
-                    if (count > 3) {
-                        anim = !anim;
-                        count = 0;
-                    }
-                    count++;
-        }*/
     }
 
     public void actionPerformed(ActionEvent e) {
+        if (key == KeyEvent.VK_LEFT) {
+            move(1);
+            if (anim == 0 || anim >= 5) {
+                setImage(cocoL1);
+                anim = 0;
+            } else if (anim == 3) {
+                setImage(cocoL2);
+            }
+            anim++;
+        }
+
+        if (key == KeyEvent.VK_RIGHT) {
+            move(2);
+            if (anim == 0 || anim >= 5) {
+                setImage(cocoR1);
+                anim = 0;
+            } else if (anim == 3) {
+                setImage(cocoR2);
+            }
+            anim++;
+        }
+
+        if (key == KeyEvent.VK_UP) {
+            move(3);
+            if (anim == 0 || anim >= 5) {
+                setImage(cocoU1);
+                anim = 0;
+            } else if (anim == 3) {
+                setImage(cocoU2);
+            }
+            anim++;
+        }
+
+        if (key == KeyEvent.VK_DOWN) {
+            move(4);
+            if (anim == 0 || anim >= 5) {
+                setImage(cocoD1);
+                anim = 0;
+            } else if (anim == 3) {
+                setImage(cocoD2);
+            }
+            anim++;
+        }
     }
 
     public void paint(Graphics g) {
