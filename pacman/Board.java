@@ -19,6 +19,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import java.lang.Math;
+
 // MIRAR BOX LAYOUT PARA REDIMENSIONADO
 
 public class Board extends JPanel implements ActionListener {
@@ -29,23 +31,21 @@ public class Board extends JPanel implements ActionListener {
     // Tecla premuda
     private int key;
 
-    // Indicar posar una imatge o una altra de l'animació (boca oberta o mig oberta)
-    int anim = 0;
+    private int rRight;
 
     // Imatges
     private Image cocoImg;
     private ImageIcon cocoP0;
-    private ImageIcon cocoL1, cocoL2;
-    private ImageIcon cocoR1, cocoR2;
-    private ImageIcon cocoU1, cocoU2;
-    private ImageIcon cocoD1, cocoD2;
+    private ImageIcon cocoL;
+    private ImageIcon cocoR;
+    private ImageIcon cocoU;
+    private ImageIcon cocoD;
 
     private Image redGhostImg;
     private ImageIcon redGhostL;
-    private ImageIcon redGhostL1, redGhostL2;
-    private ImageIcon redGhostR1, redGhostR2;
-    private ImageIcon redGhostU1, redGhostU2;
-    private ImageIcon redGhostD1, redGhostD2;
+    private ImageIcon redGhostR;
+    private ImageIcon redGhostU;
+    private ImageIcon redGhostD;
 
     private Image pinkGhostImg;
     private ImageIcon pinkGhostL;
@@ -90,36 +90,8 @@ public class Board extends JPanel implements ActionListener {
     // Timer per a moure el coco
     Timer timer = new Timer(20, this);
 
-    // Timer per a animar el coco
-    Timer mov = new Timer(90, new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (key == KeyEvent.VK_LEFT) {
-                if (cocoImg == cocoL1.getImage()) {
-                    setImage(cocoL2);
-                } else {
-                    setImage(cocoL1);
-                }
-            } else if (key == KeyEvent.VK_RIGHT) {
-                if (cocoImg == cocoR1.getImage()) {
-                    setImage(cocoR2);
-                } else {
-                    setImage(cocoR1);
-                }
-            } else if (key == KeyEvent.VK_UP) {
-                if (cocoImg == cocoU1.getImage()) {
-                    setImage(cocoU2);
-                } else {
-                    setImage(cocoU1);
-                }
-            } else if (key == KeyEvent.VK_DOWN) {
-                if (cocoImg == cocoD1.getImage()) {
-                    setImage(cocoD2);
-                } else {
-                    setImage(cocoD1);
-                }
-            }
-        }
-    });
+    // Timer fantasmes
+    Timer gTimer = new Timer(60000, this);
 
     // Game board (Dot=0, Wall=1, Teleport=2, Special=3, Empty=8)
     private int board[][] = {{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -132,7 +104,7 @@ public class Board extends JPanel implements ActionListener {
                      {1,1,1,1,0,1,1,1,8,1,8,1,1,1,0,1,1,1,1},
                      {1,1,1,1,0,1,8,8,8,8,8,8,8,1,0,1,1,1,1},
                      {1,1,1,1,0,1,8,1,1,1,1,1,8,1,0,1,1,1,1},
-                     {2,8,8,8,0,8,8,1,0,0,0,1,8,8,0,8,8,8,2},
+                     {2,1,1,1,0,8,8,1,0,0,0,1,8,8,0,1,1,1,2},
                      {1,1,1,1,0,1,8,1,1,1,1,1,8,1,0,1,1,1,1},
                      {1,1,1,1,0,1,8,8,8,8,8,8,8,1,0,1,1,1,1},
                      {1,1,1,1,0,1,8,1,1,1,1,1,8,1,0,1,1,1,1},
@@ -158,7 +130,6 @@ public class Board extends JPanel implements ActionListener {
         setSize(608, 704);
         setBackground(Color.BLACK);
         setFocusable(true);
-        mov.start();
     }
 
     /**
@@ -173,12 +144,11 @@ public class Board extends JPanel implements ActionListener {
         orangeGhost = new Entity("orange");
 
         loadImages();
-        setImage(cocoP0);
-        redGhostImg = redGhostL.getImage();
-        pinkGhostImg = pinkGhostL.getImage();
-        blueGhostImg = blueGhostL.getImage();
-        orangeGhostImg = orangeGhostL.getImage();
-        dotImg = dotYes.getImage();
+        setImage("coco", cocoP0);
+        setImage("redGhost", redGhostL);
+        setImage("blueGhost", blueGhostU);
+        setImage("pinkGhost", pinkGhostU);
+        setImage("orangeGhost", orangeGhostU);
 
         score = 0;
     }
@@ -189,43 +159,69 @@ public class Board extends JPanel implements ActionListener {
     private void loadImages() {
         // Coco
         cocoP0 = new ImageIcon(getClass().getResource("../images/coco.png"));
-        cocoL1 = new ImageIcon(getClass().getResource("../images/cocol1.png"));
-        cocoL2 = new ImageIcon(getClass().getResource("../images/cocol2.png"));
-        cocoR1 = new ImageIcon(getClass().getResource("../images/cocor1.png"));
-        cocoR2 = new ImageIcon(getClass().getResource("../images/cocor2.png"));
-        cocoU1 = new ImageIcon(getClass().getResource("../images/cocou1.png"));
-        cocoU2 = new ImageIcon(getClass().getResource("../images/cocou2.png"));
-        cocoD1 = new ImageIcon(getClass().getResource("../images/cocod1.png"));
-        cocoD2 = new ImageIcon(getClass().getResource("../images/cocod2.png"));
+        cocoL = new ImageIcon(getClass().getResource("../images/cocoL.gif"));
+        cocoR = new ImageIcon(getClass().getResource("../images/cocoR.gif"));
+        cocoU = new ImageIcon(getClass().getResource("../images/cocoU.gif"));
+        cocoD = new ImageIcon(getClass().getResource("../images/cocoD.gif"));
 
         // Red Ghost
-        redGhostL = new ImageIcon(getClass().getResource("../images/coco.png"));
-        redGhostL2 = new ImageIcon(getClass().getResource("../images/cocol2.png"));
-        redGhostR1 = new ImageIcon(getClass().getResource("../images/cocor1.png"));
-        redGhostR2 = new ImageIcon(getClass().getResource("../images/cocor2.png"));
-        redGhostU1 = new ImageIcon(getClass().getResource("../images/cocou1.png"));
-        redGhostU2 = new ImageIcon(getClass().getResource("../images/cocou2.png"));
-        redGhostD1 = new ImageIcon(getClass().getResource("../images/cocod1.png"));
-        redGhostD2 = new ImageIcon(getClass().getResource("../images/cocod2.png"));
+        redGhostL = new ImageIcon(getClass().getResource("../images/redGhostL.gif"));
+        redGhostR = new ImageIcon(getClass().getResource("../images/redGhostR.gif"));
+        redGhostU = new ImageIcon(getClass().getResource("../images/redGhostU.gif"));
+        redGhostD = new ImageIcon(getClass().getResource("../images/redGhostD.gif"));
 
         // Pink Ghost
-        pinkGhostL = new ImageIcon(getClass().getResource("../images/coco.png"));
+        pinkGhostL = new ImageIcon(getClass().getResource("../images/pinkGhostL.gif"));
+        pinkGhostR = new ImageIcon(getClass().getResource("../images/pinkGhostR.gif"));
+        pinkGhostU = new ImageIcon(getClass().getResource("../images/pinkGhostU.gif"));
+        pinkGhostD = new ImageIcon(getClass().getResource("../images/pinkGhostD.gif"));
 
         // Blue Ghost
-        blueGhostL = new ImageIcon(getClass().getResource("../images/coco.png"));
+        blueGhostL = new ImageIcon(getClass().getResource("../images/blueGhostL.gif"));
+        blueGhostR = new ImageIcon(getClass().getResource("../images/blueGhostR.gif"));
+        blueGhostU = new ImageIcon(getClass().getResource("../images/blueGhostU.gif"));
+        blueGhostD = new ImageIcon(getClass().getResource("../images/blueGhostD.gif"));
 
         // Orange Ghost
-        orangeGhostL = new ImageIcon(getClass().getResource("../images/coco.png"));
+        orangeGhostL = new ImageIcon(getClass().getResource("../images/orangeGhostL.gif"));
+        orangeGhostR = new ImageIcon(getClass().getResource("../images/orangeGhostR.gif"));
+        orangeGhostU = new ImageIcon(getClass().getResource("../images/orangeGhostU.gif"));
+        orangeGhostD = new ImageIcon(getClass().getResource("../images/orangeGhostD.gif"));
 
         // Punts
         dotYes = new ImageIcon(getClass().getResource("../images/dot.png"));
+        dotNo = null;
     }
 
     /**
-     * Selector d'imatge del coco
+     * Selector d'imatge d'una entitat per a crear la seva animació
      */
-    public void setImage(ImageIcon img) {
-        cocoImg = img.getImage();
+    public void setImage(String entity, ImageIcon img) {
+        switch (entity) {
+            case "coco":
+                cocoImg = img.getImage();
+                break;
+
+            case "redGhost":
+                redGhostImg = img.getImage();
+                break;
+
+            case "blueGhost":
+                blueGhostImg = img.getImage();
+                break;
+
+            case "pinkGhost":
+                pinkGhostImg = img.getImage();
+                break;
+
+            case "orangeGhost":
+                orangeGhostImg = img.getImage();
+                break;
+
+            case "dot":
+                dotImg = img.getImage();
+                break;
+        }
         repaint();
     }
 
@@ -255,24 +251,6 @@ public class Board extends JPanel implements ActionListener {
                 }
             }
         }
-
-        /*// Dibuixem la casa dels Ghost(s)
-        g2d.drawRect(7*cell,9*cell, 5*cell, 3*cell);
-        g2d.setComposite(AlphaComposite.SrcOver.derive(0.1f));
-        g2d.fillRect(7*cell,9*cell, 5*cell, 3*cell);
-        g2d.setComposite(AlphaComposite.SrcOver.derive(1.0f));
-        g2d.drawRect(7*cell+cell/2,9*cell+cell/2, 4*cell, 2*cell);
-        g2d.setColor(Color.BLACK);
-        g2d.fillRect(7*cell+cell/2,9*cell+cell/2, 4*cell, 2*cell);
-
-        // Dibuixem la porta de la casa dels Ghost(s)
-        g2d.fillRect(9 * cell, 9 * cell, cell, cell / 2);
-        g2d.setColor(Color.PINK);
-        g2d.drawRect(9 * cell, 9 * cell, cell, cell / 2);
-        g2d.setComposite(AlphaComposite.SrcOver.derive(0.1f));
-        g2d.fillRect(9 * cell, 9 * cell, cell, cell / 2);
-        g2d.setComposite(AlphaComposite.SrcOver.derive(1.0f));*/
-
     }
 
     /**
@@ -281,35 +259,86 @@ public class Board extends JPanel implements ActionListener {
     public void move(int dir) {
         switch (dir) {
             case 1:
-                //nextProbPos = ((coco.getX() - 12)/cell)%19;
-                if (board[(coco.getY()/cell)%22][((coco.getX() - 3)/cell)%19] != 0 && board[(coco.getY()/cell)%22][((coco.getX() - 3)/cell)%19] != 8) {
-                    timer.stop();
-                } else {
+                if ((board[((coco.getY()+20)/cell)%22][((coco.getX() - 3)/cell)%19] | board[((coco.getY())/cell)%22][((coco.getX() - 3)/cell)%19]) != 1) {
                     coco.setX(coco.getX() - 3);
-                    board[(coco.getY()/cell)%22][((coco.getX() - 3)/cell)%19] = 8;
+                    //board[(coco.getY()/cell)%22][((coco.getX() - 3)/cell)%19] = 8;
                 }
                 break;
             case 2:
-                if (board[(coco.getY()/cell)%22][((coco.getX() + 3 + 26)/cell)%19] != 0) {
-                    timer.stop();
-                } else {
+                if ((board[((coco.getY()+20)/cell)%22][((coco.getX() + 3 + 26)/cell)%19] | board[((coco.getY())/cell)%22][((coco.getX() + 3 + 26)/cell)%19]) != 1) {
                     coco.setX(coco.getX() + 3);
                 }
                 break;
             case 3:
-                if (board[((coco.getY() - 3)/cell)%22][(coco.getX()/cell)%19] != 0) {
-                    timer.stop();
-                } else {
+                if ((board[((coco.getY() - 3)/cell)%22][((coco.getX()+20)/cell)%19] | board[((coco.getY() - 3)/cell)%22][((coco.getX())/cell)%19]) != 1) {
                     coco.setY(coco.getY() - 3);
                 }
                 break;
             case 4:
-                if (board[((coco.getY() + 3 + 26)/cell)%22][(coco.getX()/cell)%19] != 0) {
-                    timer.stop();
-                } else {
+                if ((board[((coco.getY() + 3 + 26)/cell)%22][((coco.getX()+20)/cell)%19] | board[((coco.getY() + 3 + 26)/cell)%22][((coco.getX())/cell)%19]) != 1) {
                     coco.setY(coco.getY() + 3);
                 }
                 break;
+        }
+    }
+
+    public void moveRed() {
+        int calX = coco.getX() - redGhost.getX();
+        int calY = coco.getY() - redGhost.getY();
+        if (Math.abs(calX) <= Math.abs(calY)) {
+            System.out.println("y");
+            if (calY <= 0) {
+                if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                    redGhost.setY(redGhost.getY() - 3);
+                } else if (calX <= 0) {
+                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
+                        redGhost.setX(redGhost.getX() - 3);
+                    }
+                } else if (calX > 0) {
+                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
+                        redGhost.setX(redGhost.getX() + 3);
+                    }
+                }
+            } else {
+                if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                    redGhost.setY(redGhost.getY() + 3);
+                } else if (calX <= 0) {
+                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
+                        redGhost.setX(redGhost.getX() - 3);
+                    }
+                } else if (calX > 0) {
+                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
+                        redGhost.setX(redGhost.getX() + 3);
+                    }
+                }
+            }
+        } else {
+            System.out.println("x");
+            if (calX <= 0) {
+                if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
+                    redGhost.setX(redGhost.getX() - 3);
+                } else if (calY <= 0) {
+                    if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                        redGhost.setY(redGhost.getY() - 3);
+                    }
+                } else if (calY > 0) {
+                    if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                        redGhost.setY(redGhost.getY() + 3);
+                    }
+                }
+            } else {
+                if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
+                    redGhost.setX(redGhost.getX() + 3);
+                } else if (calY <= 0) {
+                    if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                        redGhost.setY(redGhost.getY() - 3);
+                    }
+                } else if (calY > 0) {
+                    if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                        redGhost.setY(redGhost.getY() + 3);
+                    }
+                }
+            }
         }
     }
 
@@ -336,29 +365,39 @@ public class Board extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (key == KeyEvent.VK_LEFT) {
             move(1);
+            setImage("coco", cocoL);
         }
 
         if (key == KeyEvent.VK_RIGHT) {
             move(2);
+            setImage("coco", cocoR);
         }
 
         if (key == KeyEvent.VK_UP) {
             move(3);
+            setImage("coco", cocoU);
         }
 
         if (key == KeyEvent.VK_DOWN) {
             move(4);
+            setImage("coco", cocoD);
         }
+
+        // Fantasma Vermell
+        moveRed();
+
+        // Fantasma Blau
+        //moveB();
     }
 
     public void paint(Graphics g) {
         super.paint(g);
         drawMaze(g);
-        g.drawImage(cocoImg, coco.getX(), coco.getY(), this);
         g.drawImage(redGhostImg, redGhost.getX(), redGhost.getY(), this);
         g.drawImage(pinkGhostImg, pinkGhost.getX(), pinkGhost.getY(), this);
         g.drawImage(blueGhostImg, blueGhost.getX(), blueGhost.getY(), this);
         g.drawImage(orangeGhostImg, orangeGhost.getX(), orangeGhost.getY(), this);
+        g.drawImage(cocoImg, coco.getX(), coco.getY(), this);
     }
 
 }
