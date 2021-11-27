@@ -70,7 +70,7 @@ public class Board extends JPanel implements ActionListener {
     private ImageIcon ghostWB;
 
     private Image dotImg;
-    private ImageIcon dotYes, dotNo;
+    private ImageIcon dotV;
 
     // Coco
     Entity coco;
@@ -93,7 +93,13 @@ public class Board extends JPanel implements ActionListener {
     // Timer fantasmes
     Timer gTimer = new Timer(60000, this);
 
-    // Game board (Dot=0, Wall=1, Teleport=2, Special=3, Empty=8)
+    /**
+     * Tauler del joc
+     * 0: Cel·la amb punt
+     * 1: Paret
+     * 2: Teletransport
+     * 8: Cel·la sense punt
+     */
     private int board[][] = {{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
                      {1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
                      {1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1},
@@ -104,7 +110,7 @@ public class Board extends JPanel implements ActionListener {
                      {1,1,1,1,0,1,1,1,8,1,8,1,1,1,0,1,1,1,1},
                      {1,1,1,1,0,1,8,8,8,8,8,8,8,1,0,1,1,1,1},
                      {1,1,1,1,0,1,8,1,1,1,1,1,8,1,0,1,1,1,1},
-                     {2,1,1,1,0,8,8,1,0,0,0,1,8,8,0,1,1,1,2},
+                     {2,0,0,0,0,8,8,1,0,0,0,1,8,8,0,0,0,0,2},
                      {1,1,1,1,0,1,8,1,1,1,1,1,8,1,0,1,1,1,1},
                      {1,1,1,1,0,1,8,8,8,8,8,8,8,1,0,1,1,1,1},
                      {1,1,1,1,0,1,8,1,1,1,1,1,8,1,0,1,1,1,1},
@@ -149,6 +155,7 @@ public class Board extends JPanel implements ActionListener {
         setImage("blueGhost", blueGhostU);
         setImage("pinkGhost", pinkGhostU);
         setImage("orangeGhost", orangeGhostU);
+        setImage("dot", dotV);
 
         score = 0;
     }
@@ -189,8 +196,7 @@ public class Board extends JPanel implements ActionListener {
         orangeGhostD = new ImageIcon(getClass().getResource("../images/orangeGhostD.gif"));
 
         // Punts
-        dotYes = new ImageIcon(getClass().getResource("../images/dot.png"));
-        dotNo = null;
+        dotV = new ImageIcon(getClass().getResource("../images/dot.png"));
     }
 
     /**
@@ -255,28 +261,49 @@ public class Board extends JPanel implements ActionListener {
 
     /**
      * Canvia la posició del coco
+     * 0: Cel·la amb punt
+     * 3: Píxels que es mou el coco per cada tic del rellotge, per comprobar que hi ha on es mou (a dalt i esquerra)
+     * 8: Cel·la sense punt
+     * 16: Meitat d'una cel·la, per fer desapareixer el punt quan passi el coco pel mig de la cel·la
+     * 20: Tamany del coco menys 6, per a deixar marge al canviar la direcció
+     * 29: Tamany del coco + 3, per comprobar que hi ha on es mou (a baix i dreta)
      */
     public void move(int dir) {
         switch (dir) {
             case 1:
-                if ((board[((coco.getY()+20)/cell)%22][((coco.getX() - 3)/cell)%19] | board[((coco.getY())/cell)%22][((coco.getX() - 3)/cell)%19]) != 1) {
+                if (((board[(coco.getY()+20)/cell][(coco.getX() - 3)/cell] | board[(coco.getY())/cell][(coco.getX() - 3)/cell]) == 0)
+                || (board[(coco.getY()+20)/cell][(coco.getX() - 3)/cell] | board[(coco.getY())/cell][(coco.getX() - 3)/cell]) == 8) {
                     coco.setX(coco.getX() - 3);
-                    //board[(coco.getY()/cell)%22][((coco.getX() - 3)/cell)%19] = 8;
+                    if(board[coco.getY()/cell][(coco.getX() - 3)/cell] == 0 && ((coco.getX() - 3)%cell) <= 16) {
+                        board[coco.getY()/cell][coco.getX()/cell] = 8;
+                    }
                 }
                 break;
             case 2:
-                if ((board[((coco.getY()+20)/cell)%22][((coco.getX() + 3 + 26)/cell)%19] | board[((coco.getY())/cell)%22][((coco.getX() + 3 + 26)/cell)%19]) != 1) {
+                if (((board[(coco.getY()+20)/cell][(coco.getX() + 29)/cell] | board[(coco.getY())/cell][(coco.getX() + 29)/cell]) == 0)
+                || (board[(coco.getY()+20)/cell][(coco.getX() + 29)/cell] | board[(coco.getY())/cell][(coco.getX() + 29)/cell]) == 8) {
                     coco.setX(coco.getX() + 3);
+                    if(board[coco.getY()/cell][(coco.getX() + 3)/cell] == 0 && ((coco.getX() + 3)%cell) <= 16) {
+                        board[coco.getY()/cell][coco.getX()/cell] = 8;
+                    }
                 }
                 break;
             case 3:
-                if ((board[((coco.getY() - 3)/cell)%22][((coco.getX()+20)/cell)%19] | board[((coco.getY() - 3)/cell)%22][((coco.getX())/cell)%19]) != 1) {
+                if (((board[(coco.getY() - 3)/cell][(coco.getX()+20)/cell] | board[(coco.getY() - 3)/cell][(coco.getX())/cell]) == 0)
+                || (board[(coco.getY() - 3)/cell][(coco.getX()+20)/cell] | board[(coco.getY() - 3)/cell][(coco.getX())/cell]) == 8) {
                     coco.setY(coco.getY() - 3);
+                    if(board[(coco.getY() - 3)/cell][coco.getX()/cell] == 0 && ((coco.getY() - 3)%cell) <= 16) {
+                        board[coco.getY()/cell][coco.getX()/cell] = 8;
+                    }
                 }
                 break;
             case 4:
-                if ((board[((coco.getY() + 3 + 26)/cell)%22][((coco.getX()+20)/cell)%19] | board[((coco.getY() + 3 + 26)/cell)%22][((coco.getX())/cell)%19]) != 1) {
+                if (((board[(coco.getY() + 29)/cell][(coco.getX()+20)/cell] | board[(coco.getY() + 29)/cell][(coco.getX())/cell]) == 0)
+                || (board[(coco.getY() + 29)/cell][(coco.getX()+20)/cell] | board[(coco.getY() + 29)/cell][(coco.getX())/cell]) == 8) {
                     coco.setY(coco.getY() + 3);
+                    if(board[(coco.getY() + 3)/cell][coco.getX()/cell] == 0 && ((coco.getY() + 3)%cell) <= 16) {
+                        board[coco.getY()/cell][coco.getX()/cell] = 8;
+                    }
                 }
                 break;
         }
@@ -290,25 +317,31 @@ public class Board extends JPanel implements ActionListener {
             if (calY <= 0) {
                 if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                     redGhost.setY(redGhost.getY() - 3);
+                    setImage("redGhost", redGhostU);
                 } else if (calX <= 0) {
                     if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
                         redGhost.setX(redGhost.getX() - 3);
+                        setImage("redGhost", redGhostL);
                     }
                 } else if (calX > 0) {
                     if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
                         redGhost.setX(redGhost.getX() + 3);
+                        setImage("redGhost", redGhostR);
                     }
                 }
             } else {
                 if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                     redGhost.setY(redGhost.getY() + 3);
+                    setImage("redGhost", redGhostD);
                 } else if (calX <= 0) {
                     if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
                         redGhost.setX(redGhost.getX() - 3);
+                        setImage("redGhost", redGhostL);
                     }
                 } else if (calX > 0) {
                     if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
                         redGhost.setX(redGhost.getX() + 3);
+                        setImage("redGhost", redGhostR);
                     }
                 }
             }
@@ -317,25 +350,31 @@ public class Board extends JPanel implements ActionListener {
             if (calX <= 0) {
                 if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
                     redGhost.setX(redGhost.getX() - 3);
+                    setImage("redGhost", redGhostL);
                 } else if (calY <= 0) {
                     if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                         redGhost.setY(redGhost.getY() - 3);
+                        setImage("redGhost", redGhostU);
                     }
                 } else if (calY > 0) {
                     if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                         redGhost.setY(redGhost.getY() + 3);
+                        setImage("redGhost", redGhostD);
                     }
                 }
             } else {
                 if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
                     redGhost.setX(redGhost.getX() + 3);
+                    setImage("redGhost", redGhostR);
                 } else if (calY <= 0) {
                     if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                         redGhost.setY(redGhost.getY() - 3);
+                        setImage("redGhost", redGhostU);
                     }
                 } else if (calY > 0) {
                     if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                         redGhost.setY(redGhost.getY() + 3);
+                        setImage("redGhost", redGhostD);
                     }
                 }
             }
@@ -388,6 +427,10 @@ public class Board extends JPanel implements ActionListener {
 
         // Fantasma Blau
         //moveB();
+
+        if ((redGhost.getY()/cell == coco.getY()/cell) && (redGhost.getX()/cell == coco.getX()/cell)) {
+            timer.stop();
+        }
     }
 
     public void paint(Graphics g) {
