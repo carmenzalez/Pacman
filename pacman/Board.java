@@ -1,13 +1,20 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package pacman;
 
 /**
- * Imports
+ *
+ * @author carmeeeen
  */
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -92,6 +99,9 @@ public class Board extends JPanel implements ActionListener {
 
     // Timer fantasmes
     Timer gTimer = new Timer(60000, this);
+    
+    // Tipo de letra
+    private final Font smallfont = new Font("Helvetica", Font.BOLD, 30);
 
     /**
      * Tauler del joc
@@ -133,7 +143,7 @@ public class Board extends JPanel implements ActionListener {
      * Configurem el Board (JPanel)
      */
     public void config() {
-        setSize(608, 704);
+        setSize(608, 1024);
         setBackground(Color.BLACK);
         setFocusable(true);
     }
@@ -246,13 +256,13 @@ public class Board extends JPanel implements ActionListener {
             for (int i = 0; i < 19; i++) {
                 if (board[j][i] == 1) {
                     g2d.drawRect(i * (cell), j * (cell), 32, 32);
-                    g2d.setComposite(AlphaComposite.SrcOver.derive(0.1f)); /* Opacitat */
+                    g2d.setComposite(AlphaComposite.SrcOver.derive(0.4f)); /* Opacitat */
                     g2d.fillRect(i * (cell), j * (cell), 32, 32);
                     g2d.setComposite(AlphaComposite.SrcOver.derive(1.0f));
                 } else if (board[j][i] == 0) {
                     dot = new Entity(i,j);
                     g.drawImage(dotImg, dot.getX(), dot.getY(), this);
-                    score = score + 10;
+                  //  score = score + 10;
 
                 }
             }
@@ -313,66 +323,78 @@ public class Board extends JPanel implements ActionListener {
         int calX = coco.getX() - redGhost.getX();
         int calY = coco.getY() - redGhost.getY();
         if (Math.abs(calX) <= Math.abs(calY)) {
-            System.out.println("y");
+          //  System.out.println("y");
             if (calY <= 0) {
-                if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | 
+                        board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                     redGhost.setY(redGhost.getY() - 3);
                     setImage("redGhost", redGhostU);
                 } else if (calX <= 0) {
-                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
+                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | 
+                            board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
                         redGhost.setX(redGhost.getX() - 3);
                         setImage("redGhost", redGhostL);
                     }
                 } else if (calX > 0) {
-                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
+                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | 
+                            board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
                         redGhost.setX(redGhost.getX() + 3);
                         setImage("redGhost", redGhostR);
                     }
                 }
             } else {
-                if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | 
+                        board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                     redGhost.setY(redGhost.getY() + 3);
                     setImage("redGhost", redGhostD);
                 } else if (calX <= 0) {
-                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
+                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | 
+                            board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
                         redGhost.setX(redGhost.getX() - 3);
                         setImage("redGhost", redGhostL);
                     }
                 } else if (calX > 0) {
-                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
+                    if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | 
+                            board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
                         redGhost.setX(redGhost.getX() + 3);
                         setImage("redGhost", redGhostR);
                     }
                 }
             }
         } else {
-            System.out.println("x");
+          //  System.out.println("x");
             if (calX <= 0) {
-                if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
+                if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() - 3)/cell)%19] | 
+                        board[((redGhost.getY())/cell)%22][((redGhost.getX() - 3)/cell)%19]) != 1) {
                     redGhost.setX(redGhost.getX() - 3);
                     setImage("redGhost", redGhostL);
                 } else if (calY <= 0) {
-                    if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                    if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | 
+                            board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                         redGhost.setY(redGhost.getY() - 3);
                         setImage("redGhost", redGhostU);
                     }
                 } else if (calY > 0) {
-                    if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                    if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | 
+                            board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                         redGhost.setY(redGhost.getY() + 3);
                         setImage("redGhost", redGhostD);
                     }
                 }
             } else {
-                if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
+                if ((board[((redGhost.getY()+21)/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19] | 
+                        board[((redGhost.getY())/cell)%22][((redGhost.getX() + 3 + 28)/cell)%19]) != 1) {
                     redGhost.setX(redGhost.getX() + 3);
                     setImage("redGhost", redGhostR);
                 } else if (calY <= 0) {
-                    if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                    if ((board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX()+21)/cell)%19] | 
+                            board[((redGhost.getY() - 3)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                         redGhost.setY(redGhost.getY() - 3);
                         setImage("redGhost", redGhostU);
                     }
                 } else if (calY > 0) {
-                    if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
+                    if ((board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX()+21)/cell)%19] | 
+                            board[((redGhost.getY() + 3 + 28)/cell)%22][((redGhost.getX())/cell)%19]) != 1) {
                         redGhost.setY(redGhost.getY() + 3);
                         setImage("redGhost", redGhostD);
                     }
@@ -433,9 +455,45 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /*
+     * calcular score
+    */
+    private int getScore(){
+        
+        int sc = this.score - 26*10;
+            
+            for (int j = 0; j < 22; j++) {
+                for (int i = 0; i < 19; i++) {
+                    if(board[j][i] == 8)
+                        sc = sc + 10;
+                }
+            }
+        
+        return sc;
+    }
+    
+    /*
+     * dibujar score
+    */
+    
+    private void drawScore(Graphics g) {
+
+        String s;
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setFont(smallfont);
+        g2d.setColor(Color.WHITE);
+
+        s = "Score: " + getScore();
+
+        g2d.drawString(s, 1 * 32, 23 * 32 + 3);
+
+    }
+   
+
     public void paint(Graphics g) {
         super.paint(g);
         drawMaze(g);
+        drawScore(g);
         g.drawImage(redGhostImg, redGhost.getX(), redGhost.getY(), this);
         g.drawImage(pinkGhostImg, pinkGhost.getX(), pinkGhost.getY(), this);
         g.drawImage(blueGhostImg, blueGhost.getX(), blueGhost.getY(), this);
@@ -444,3 +502,15 @@ public class Board extends JPanel implements ActionListener {
     }
 
 }
+
+    /*
+    KeyAdapter (abstract class): One need not implement all the methods - 
+    just provide the code for required method(s). In case the application 
+    extends this class there will not be a chance to extend any other classes.
+    KeyListener(interface): In case of implementing this interface, one need 
+    to implement all the three methods. But, there is a possibility for extending 
+    other classes, later.
+    keyPressed(KeyEvent e): Se ejecuta cuando el usuario presiona una tecla.
+    keyReleased(KeyEvent e): Se ejecuta cuando el usuario libera una tecla
+     */
+ 
