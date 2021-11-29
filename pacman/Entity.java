@@ -30,9 +30,23 @@ public class Entity {
         }
     }
 
-    public Entity(int x, int y) {
-        this.x = x*32+14;
-        this.y = y*32+14;
+    public Entity(String entity, int x, int y) {
+        switch (entity) {
+            case "dot":
+                this.x = x*32+14;
+                this.y = y*32+14;
+                break;
+
+            case "dotBig":
+                this.x = x*32+8;
+                this.y = y*32+8;
+                break;
+
+            case "message":
+                this.x = x*32+8;
+                this.y = y*32+8;
+                break;
+        }
     }
 
     public int getX() {

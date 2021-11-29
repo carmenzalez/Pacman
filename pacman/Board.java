@@ -65,12 +65,17 @@ public class Board extends JPanel implements ActionListener {
     private ImageIcon orangeGhostU;
     private ImageIcon orangeGhostD;
 
-    private ImageIcon ghostW;
-    private ImageIcon ghostB;
+    //private ImageIcon ghostB;
     private ImageIcon ghostWB;
 
     private Image dotImg;
     private ImageIcon dotV;
+
+    private Image dotBigImg;
+    private ImageIcon dotBigV;
+
+    private Image messageImg;
+    private ImageIcon ready, gameOver;
 
     // Coco
     Entity coco;
@@ -83,12 +88,23 @@ public class Board extends JPanel implements ActionListener {
 
     // Punts
     Entity dot;
+    Entity dotB1, dotB2, dotB3, dotB4;
+
+    // Ready, GameOver
+    Entity message;
 
     // Puntuació
     int score;
 
     // Timer per a moure el coco
     Timer timer = new Timer(20, this);
+
+    // Timer fantasmes
+    Timer timerF = new Timer(10000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+        }
+    });
 
     // Tipus de lletra
     private final Font smallfont = new Font("Helvetica", Font.BOLD, 30);
@@ -126,6 +142,7 @@ public class Board extends JPanel implements ActionListener {
     public Board() {
         config();
         initVar();
+        bConfig();
         addKeyListener(new Key());
     }
 
@@ -145,11 +162,20 @@ public class Board extends JPanel implements ActionListener {
         cell = 32;
         score = 0;
 
+        timerF.setRepeats(false);
+    }
+
+    public void bConfig() {
         coco = new Entity("coco");
         redGhost = new Entity("red");
         pinkGhost = new Entity("pink");
         blueGhost = new Entity("blue");
         orangeGhost = new Entity("orange");
+        dotB1 = new Entity("dotBig", 1, 2);
+        dotB2 = new Entity("dotBig", 17, 2);
+        dotB3 = new Entity("dotBig", 1, 16);
+        dotB4 = new Entity("dotBig", 17, 16);
+        message = new Entity("message", 7, 12);
 
         loadImages();
         setImage("coco", cocoP0);
@@ -158,6 +184,8 @@ public class Board extends JPanel implements ActionListener {
         setImage("pinkGhost", pinkGhostU);
         setImage("orangeGhost", orangeGhostU);
         setImage("dot", dotV);
+        setImage("dotBig", dotBigV);
+        setImage("message", ready);
     }
 
     /**
@@ -197,10 +225,16 @@ public class Board extends JPanel implements ActionListener {
         orangeGhostD = new ImageIcon(getClass().getResource("../images/orangeGhostD.gif"));
 
         // Fantasma Dèbil
-
+        //ghostB = new ImageIcon(getClass().getResource("../images/ghostB.gif"));
+        ghostWB = new ImageIcon(getClass().getResource("../images/ghostWB.gif"));
 
         // Punts
         dotV = new ImageIcon(getClass().getResource("../images/dot.png"));
+        dotBigV = new ImageIcon(getClass().getResource("../images/dotBig.png"));
+
+        // Missatges
+        ready = new ImageIcon(getClass().getResource("../images/ready.png"));
+        gameOver = new ImageIcon(getClass().getResource("../images/gameover.png"));
     }
 
     /**
@@ -231,6 +265,14 @@ public class Board extends JPanel implements ActionListener {
             case "dot":
                 dotImg = img.getImage();
                 break;
+            
+            case "dotBig":
+                dotBigImg = img.getImage();
+                break;
+
+            case "message":
+                messageImg = img.getImage();
+                break;
         }
         repaint();
     }
@@ -254,7 +296,7 @@ public class Board extends JPanel implements ActionListener {
                     g2d.fillRect(i * (cell), j * (cell), 32, 32);
                     g2d.setComposite(AlphaComposite.SrcOver.derive(1.0f));
                 } else if (board[j][i] == 0) {
-                    dot = new Entity(i,j);
+                    dot = new Entity("dot",i,j);
                     g.drawImage(dotImg, dot.getX(), dot.getY(), this);
                 }
             }
@@ -395,8 +437,14 @@ public class Board extends JPanel implements ActionListener {
                 }
             }
         }
+        if (timerF.isRunning()) {
+            setImage("redGhost", ghostWB);
+        }
     }
 
+    /**
+     * Llegeix quan es prem una tecla
+     */
     public class Key extends KeyAdapter {
 
         @Override
@@ -413,11 +461,14 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
-    public void reset() {
+    /**
+     * Configuració quan el coco es mor
+     */
+    /*public void reset() {
         coco.setX(9*32+3);
         coco.setY(16*32+3);
         setImage("coco", cocoP0);
-    }
+    }*/
 
     public void actionPerformed(ActionEvent e) {
         if (key == KeyEvent.VK_LEFT) {
@@ -445,9 +496,25 @@ public class Board extends JPanel implements ActionListener {
 
         // Fantasma Vermell t'atrapa
         if ((redGhost.getY()/cell == coco.getY()/cell) && (redGhost.getX()/cell == coco.getX()/cell)) {
-            setImage("coco",cocoF);
-            timer.stop();
-            reset();
+            if (timerF.isRunning()) {
+                redGhost.setX(9*32+3);
+                redGhost.setY(8*32+3);
+                timerF.stop();
+            } else {
+                setImage("coco", cocoF);
+                timer.stop();
+                bConfig();
+            }
+        }
+
+        if ((dotB1.getY()/cell == coco.getY()/cell) && (dotB1.getX()/cell == coco.getX()/cell)) {
+            timerF.start();
+        } else if ((dotB2.getY()/cell == coco.getY()/cell) && (dotB2.getX()/cell == coco.getX()/cell)) {
+            timerF.start();
+        } else if ((dotB3.getY()/cell == coco.getY()/cell) && (dotB3.getX()/cell == coco.getX()/cell)) {
+            timerF.start();
+        } else if ((dotB4.getY()/cell == coco.getY()/cell) && (dotB4.getX()/cell == coco.getX()/cell)) {
+            timerF.start();
         }
     }
 
@@ -481,6 +548,13 @@ public class Board extends JPanel implements ActionListener {
         super.paint(g);
         drawMaze(g);
         drawScore(g);
+        if (!timer.isRunning()) {
+            g.drawImage(messageImg, message.getX(), message.getY(), this);
+        }
+        g.drawImage(dotBigImg, dotB1.getX(), dotB2.getY(), this);
+        g.drawImage(dotBigImg, dotB2.getX(), dotB2.getY(), this);
+        g.drawImage(dotBigImg, dotB3.getX(), dotB3.getY(), this);
+        g.drawImage(dotBigImg, dotB4.getX(), dotB4.getY(), this);
         g.drawImage(redGhostImg, redGhost.getX(), redGhost.getY(), this);
         g.drawImage(pinkGhostImg, pinkGhost.getX(), pinkGhost.getY(), this);
         g.drawImage(blueGhostImg, blueGhost.getX(), blueGhost.getY(), this);
