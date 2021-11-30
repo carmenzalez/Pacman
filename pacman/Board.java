@@ -69,10 +69,8 @@ public class Board extends JPanel implements ActionListener {
     private ImageIcon ghostWB;
 
     private Image dotImg;
-    private ImageIcon dotV;
-
-    private Image dotBigImg;
-    private ImageIcon dotBigV;
+    private ImageIcon dotSmall;
+    private ImageIcon dotBig;
 
     private Image messageImg;
     private ImageIcon ready, gameOver;
@@ -88,7 +86,6 @@ public class Board extends JPanel implements ActionListener {
 
     // Punts
     Entity dot;
-    Entity dotB1, dotB2, dotB3, dotB4;
 
     // Ready, GameOver
     Entity message;
@@ -171,10 +168,6 @@ public class Board extends JPanel implements ActionListener {
         pinkGhost = new Entity("pink");
         blueGhost = new Entity("blue");
         orangeGhost = new Entity("orange");
-        dotB1 = new Entity("dotBig", 1, 2);
-        dotB2 = new Entity("dotBig", 17, 2);
-        dotB3 = new Entity("dotBig", 1, 16);
-        dotB4 = new Entity("dotBig", 17, 16);
         message = new Entity("message", 7, 12);
 
         loadImages();
@@ -183,8 +176,7 @@ public class Board extends JPanel implements ActionListener {
         setImage("blueGhost", blueGhostU);
         setImage("pinkGhost", pinkGhostU);
         setImage("orangeGhost", orangeGhostU);
-        setImage("dot", dotV);
-        setImage("dotBig", dotBigV);
+        setImage("dot", dotSmall);
         setImage("message", ready);
     }
 
@@ -229,8 +221,8 @@ public class Board extends JPanel implements ActionListener {
         ghostWB = new ImageIcon(getClass().getResource("../images/ghostWB.gif"));
 
         // Punts
-        dotV = new ImageIcon(getClass().getResource("../images/dot.png"));
-        dotBigV = new ImageIcon(getClass().getResource("../images/dotBig.png"));
+        dotSmall = new ImageIcon(getClass().getResource("../images/dot.png"));
+        dotBig = new ImageIcon(getClass().getResource("../images/dotBig.png"));
 
         // Missatges
         ready = new ImageIcon(getClass().getResource("../images/ready.png"));
@@ -265,10 +257,6 @@ public class Board extends JPanel implements ActionListener {
             case "dot":
                 dotImg = img.getImage();
                 break;
-            
-            case "dotBig":
-                dotBigImg = img.getImage();
-                break;
 
             case "message":
                 messageImg = img.getImage();
@@ -297,6 +285,10 @@ public class Board extends JPanel implements ActionListener {
                     g2d.setComposite(AlphaComposite.SrcOver.derive(1.0f));
                 } else if (board[j][i] == 0) {
                     dot = new Entity("dot",i,j);
+                    setImage("dot", dotSmall);
+                    if ((i==1 && j==2) || (i==17 && j==2) || (i==1 && j==16) || (i==17 && j==16)) {
+                        setImage("dot", dotBig);
+                    }
                     g.drawImage(dotImg, dot.getX(), dot.getY(), this);
                 }
             }
@@ -461,15 +453,6 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
-    /**
-     * Configuració quan el coco es mor
-     */
-    /*public void reset() {
-        coco.setX(9*32+3);
-        coco.setY(16*32+3);
-        setImage("coco", cocoP0);
-    }*/
-
     public void actionPerformed(ActionEvent e) {
         if (key == KeyEvent.VK_LEFT) {
             move(1);
@@ -507,13 +490,13 @@ public class Board extends JPanel implements ActionListener {
             }
         }
 
-        if ((dotB1.getY()/cell == coco.getY()/cell) && (dotB1.getX()/cell == coco.getX()/cell)) {
+        if ((2 == coco.getY()/cell) && (1 == coco.getX()/cell)) {
             timerF.start();
-        } else if ((dotB2.getY()/cell == coco.getY()/cell) && (dotB2.getX()/cell == coco.getX()/cell)) {
+        } else if ((2 == coco.getY()/cell) && (17 == coco.getX()/cell)) {
             timerF.start();
-        } else if ((dotB3.getY()/cell == coco.getY()/cell) && (dotB3.getX()/cell == coco.getX()/cell)) {
+        } else if ((16 == coco.getY()/cell) && (1 == coco.getX()/cell)) {
             timerF.start();
-        } else if ((dotB4.getY()/cell == coco.getY()/cell) && (dotB4.getX()/cell == coco.getX()/cell)) {
+        } else if ((16 == coco.getY()/cell) && (17 == coco.getX()/cell)) {
             timerF.start();
         }
     }
@@ -551,10 +534,6 @@ public class Board extends JPanel implements ActionListener {
         if (!timer.isRunning()) {
             g.drawImage(messageImg, message.getX(), message.getY(), this);
         }
-        g.drawImage(dotBigImg, dotB1.getX(), dotB2.getY(), this);
-        g.drawImage(dotBigImg, dotB2.getX(), dotB2.getY(), this);
-        g.drawImage(dotBigImg, dotB3.getX(), dotB3.getY(), this);
-        g.drawImage(dotBigImg, dotB4.getX(), dotB4.getY(), this);
         g.drawImage(redGhostImg, redGhost.getX(), redGhost.getY(), this);
         g.drawImage(pinkGhostImg, pinkGhost.getX(), pinkGhost.getY(), this);
         g.drawImage(blueGhostImg, blueGhost.getX(), blueGhost.getY(), this);
