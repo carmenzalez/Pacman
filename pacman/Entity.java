@@ -37,11 +37,6 @@ public class Entity {
                 this.y = y*32+14;
                 break;
 
-            case "dotBig":
-                this.x = x*32+8;
-                this.y = y*32+8;
-                break;
-
             case "message":
                 this.x = x*32+8;
                 this.y = y*32+8;
