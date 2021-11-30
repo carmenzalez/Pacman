@@ -22,8 +22,6 @@ import javax.swing.Timer;
 
 import java.lang.Math;
 
-// MIRAR BOX LAYOUT PARA REDIMENSIONADO
-
 public class Board extends JPanel implements ActionListener {
 
     // Tamany de la cel·la
@@ -32,6 +30,9 @@ public class Board extends JPanel implements ActionListener {
     // Tecla premuda
     private int key;
 
+    // Puntuació
+    int score;
+
     // Imatges
     private Image cocoImg;
     private ImageIcon cocoP0;
@@ -39,7 +40,6 @@ public class Board extends JPanel implements ActionListener {
     private ImageIcon cocoR;
     private ImageIcon cocoU;
     private ImageIcon cocoD;
-    private ImageIcon cocoF;
 
     private Image redGhostImg;
     private ImageIcon redGhostL;
@@ -65,7 +65,6 @@ public class Board extends JPanel implements ActionListener {
     private ImageIcon orangeGhostU;
     private ImageIcon orangeGhostD;
 
-    //private ImageIcon ghostB;
     private ImageIcon ghostWB;
 
     private Image dotImg;
@@ -76,27 +75,24 @@ public class Board extends JPanel implements ActionListener {
     private ImageIcon ready, gameOver;
 
     // Coco
-    Entity coco;
+    private Entity coco;
 
     // Fantasmes
-    Entity redGhost;
-    Entity pinkGhost;
-    Entity blueGhost;
-    Entity orangeGhost;
+    private Entity redGhost;
+    private Entity pinkGhost;
+    private Entity blueGhost;
+    private Entity orangeGhost;
 
     // Punts
-    Entity dot;
+    private Entity dot;
 
     // Ready, GameOver
-    Entity message;
-
-    // Puntuació
-    int score;
+    private Entity message;
 
     // Timer per a moure el coco
-    Timer timer = new Timer(20, this);
+    private Timer timer = new Timer(20, this);
 
-    // Timer fantasmes
+    // Timer fantasma dèbil
     Timer timerF = new Timer(10000, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -147,7 +143,6 @@ public class Board extends JPanel implements ActionListener {
      * Configurem el Board (JPanel)
      */
     public void config() {
-        setSize(608, 704);
         setBackground(Color.BLACK);
         setFocusable(true);
     }
@@ -178,6 +173,8 @@ public class Board extends JPanel implements ActionListener {
         setImage("orangeGhost", orangeGhostU);
         setImage("dot", dotSmall);
         setImage("message", ready);
+        if (timerF.isRunning())
+            setImage("message", gameOver);
     }
 
     /**
@@ -190,7 +187,6 @@ public class Board extends JPanel implements ActionListener {
         cocoR = new ImageIcon(getClass().getResource("../images/cocoR.gif"));
         cocoU = new ImageIcon(getClass().getResource("../images/cocoU.gif"));
         cocoD = new ImageIcon(getClass().getResource("../images/cocoD.gif"));
-        cocoF = new ImageIcon(getClass().getResource("../images/cocoF.gif"));
 
         // Fantasma Vermell
         redGhostL = new ImageIcon(getClass().getResource("../images/redGhostL.gif"));
@@ -315,6 +311,8 @@ public class Board extends JPanel implements ActionListener {
                     if(board[y/cell][(x - 3)/cell] == 0 && (x - 3)%cell <= 16) {
                         board[y/cell][x/cell] = 8;
                     }
+                } else if (board[(y + 20)/cell][(x - 3)/cell] == 2 || board[y/cell][(x - 3)/cell] == 2) {
+                    coco.setX(18*cell);
                 }
                 break;
             case 2:
@@ -324,13 +322,15 @@ public class Board extends JPanel implements ActionListener {
                     if(board[y/cell][(x + 3)/cell] == 0 && ((x + 3)%cell) <= 16) {
                         board[y/cell][x/cell] = 8;
                     }
+                } else if (board[(y + 20)/cell][(x + 29)/cell] == 2 || board[y/cell][(x + 29)/cell] == 2) {
+                    coco.setX(1*cell);
                 }
                 break;
             case 3:
                 if ((board[(y - 3)/cell][(x + 20)/cell] | board[(y - 3)/cell][x/cell]) == 0
                 || (board[(y - 3)/cell][(x + 20)/cell] | board[(y - 3)/cell][x/cell]) == 8) {
                     coco.setY(y - 3);
-                    if(board[(y - 3)/cell][x/cell] == 0 && (y - 3)%cell <= 16) {
+                    if(board[(y - 3)/cell][x/cell] == 0 && (y - 3)%cell <= 6) {
                         board[y/cell][x/cell] = 8;
                     }
                 }
@@ -350,8 +350,8 @@ public class Board extends JPanel implements ActionListener {
     public void moveRed() {
         int x = redGhost.getX();
         int y = redGhost.getY();
-        int calX = coco.getX() - redGhost.getX();
-        int calY = coco.getY() - redGhost.getY();
+        int calX = coco.getX() - x;
+        int calY = coco.getY() - y;
         if (Math.abs(calX) <= Math.abs(calY)) {
             if (calY <= 0) {
                 if ((board[(y - 3)/cell][(x + 21)/cell] | board[(y - 3)/cell][x/cell]) == 0
@@ -454,6 +454,7 @@ public class Board extends JPanel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+
         if (key == KeyEvent.VK_LEFT) {
             move(1);
             setImage("coco", cocoL);
@@ -484,9 +485,10 @@ public class Board extends JPanel implements ActionListener {
                 redGhost.setY(8*32+3);
                 timerF.stop();
             } else {
-                //setImage("coco", cocoF);
                 timer.stop();
+                timerF.start();
                 bConfig();
+                timerF.stop();
             }
         }
 
@@ -525,9 +527,12 @@ public class Board extends JPanel implements ActionListener {
         g2d.setFont(smallfont);
         g2d.setColor(Color.WHITE);
         s = "Score: " + getScore();
-        g2d.drawString(s, 1 * 32, 23 * 32 + 3);
+        g2d.drawString(s, cell, 23 * cell + 3);
     }
 
+    /**
+     * Actualització pantalla i components
+     */
     public void paint(Graphics g) {
         super.paint(g);
         drawMaze(g);

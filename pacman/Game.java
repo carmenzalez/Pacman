@@ -2,17 +2,15 @@ package pacman;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingConstants;
 
 public class Game extends JFrame { //Ficar implements ActionListener i deixar el codi bonic
-
-    Board board;
+    
 
     public Game() {
         setTitle("PacMan");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(650,1024);
-        add(new Board(), SwingConstants.CENTER);
+        setSize(625,800);
+        add(new Board());
         setVisible(true);
     }
 

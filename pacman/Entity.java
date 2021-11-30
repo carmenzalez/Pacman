@@ -33,8 +33,8 @@ public class Entity {
     public Entity(String entity, int x, int y) {
         switch (entity) {
             case "dot":
-                this.x = x*32+14;
-                this.y = y*32+14;
+                this.x = x*32;
+                this.y = y*32;
                 break;
 
             case "message":
