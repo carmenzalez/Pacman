@@ -3,9 +3,8 @@ package pacman;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-public class Game extends JFrame { //Ficar implements ActionListener i deixar el codi bonic
+public class Game extends JFrame { 
     
-
     public Game() {
         setTitle("PacMan");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
