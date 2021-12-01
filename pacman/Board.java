@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package pacman;
 
 /**
@@ -276,7 +281,7 @@ public class Board extends JPanel implements ActionListener {
             for (int i = 0; i < 19; i++) {
                 if (board[j][i] == 1) {
                     g2d.drawRect(i * (cell), j * (cell), 32, 32);
-                    g2d.setComposite(AlphaComposite.SrcOver.derive(0.1f)); /* Opacitat */
+                    g2d.setComposite(AlphaComposite.SrcOver.derive(0.4f)); /* Opacitat */
                     g2d.fillRect(i * (cell), j * (cell), 32, 32);
                     g2d.setComposite(AlphaComposite.SrcOver.derive(1.0f));
                 } else if (board[j][i] == 0) {
@@ -483,6 +488,7 @@ public class Board extends JPanel implements ActionListener {
             if (timerF.isRunning()) {
                 redGhost.setX(9*32+3);
                 redGhost.setY(8*32+3);
+                score += 200;
                 timerF.stop();
             } else {
                 timer.stop();
@@ -494,12 +500,16 @@ public class Board extends JPanel implements ActionListener {
 
         // Coco es menja un punt gran
         if ((2 == coco.getY()/cell) && (1 == coco.getX()/cell) && board[coco.getY()/cell][coco.getX()/cell] == 0) {
+            score += 50;
             timerF.restart();
         } else if ((2 == coco.getY()/cell) && (17 == coco.getX()/cell) && board[coco.getY()/cell][coco.getX()/cell] == 0) {
+            score += 50;
             timerF.restart();
         } else if ((16 == coco.getY()/cell) && (1 == coco.getX()/cell) && board[coco.getY()/cell][coco.getX()/cell] == 0) {
+            score += 50;
             timerF.restart();
         } else if ((16 == coco.getY()/cell) && (17 == coco.getX()/cell) && board[coco.getY()/cell][coco.getX()/cell] == 0) {
+            score += 50;
             timerF.restart();
         }
     }
@@ -507,17 +517,18 @@ public class Board extends JPanel implements ActionListener {
     /**
      * Calcular puntuació
      */
-    private int getScore(){
-        int sc = this.score - 26*10;
-            for (int j = 0; j < 22; j++) {
-                for (int i = 0; i < 19; i++) {
-                    if(board[j][i] == 8)
-                        sc = sc + 10;
+    private int getScore() {
+        int sc = this.score - 26 * 10;
+        for (int j = 0; j < 22; j++) {
+            for (int i = 0; i < 19; i++) {
+                if (board[j][i] == 8) {
+                    sc = sc + 10;
                 }
             }
+        }
         return sc;
     }
-    
+
     /**
      * Dibuixar puntuació
      */
